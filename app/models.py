@@ -1,4 +1,14 @@
+from flask_login import UserMixin
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from . import db
+
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(1000))
 
 
 class Runner(db.Model):
@@ -74,6 +84,10 @@ class RunnerContact(db.Model):
     club_name = db.Column(db.String)
 
     runner = db.relationship('Runner', back_populates='runner_contact')
+
+    @hybrid_property
+    def fullname(self):
+        return self.firstname + " " + self.surname
 
 
 class Race:

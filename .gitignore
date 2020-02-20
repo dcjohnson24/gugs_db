@@ -10,3 +10,5 @@ share/
 lib/
 bin/
 include/
+data/
+.vscode/

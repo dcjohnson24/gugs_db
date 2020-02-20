@@ -1,11 +1,12 @@
 flask
 flask_sqlalchemy
+Flask-WTF
+flask_table
+flask_session
+flask-login
 psycopg2
 ipython
 python-dotenv
 requests
 pandas
 gunicorn
-Flask-WTF
-flask_table
-flask_session
