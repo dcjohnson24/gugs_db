@@ -4,6 +4,7 @@ from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_login import LoginManager
+from flask_sslify import SSLify
 
 import config
 
@@ -29,6 +30,9 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
+    if 'DYNO' in os.environ:
+        SSLify(app)
+        
     from .models import User
 
     @login_manager.user_loader

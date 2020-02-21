@@ -4,6 +4,7 @@ Flask-WTF
 flask_table
 flask_session
 flask-login
+flask-sslify
 psycopg2
 ipython
 python-dotenv
