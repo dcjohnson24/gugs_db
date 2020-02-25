@@ -24,9 +24,9 @@ class Runner(db.Model):
     gender = db.Column(db.String)
     age_cat_type_id = db.Column(db.Integer)
 
-    # runner_contact = db.relationship('RunnerContact',
-    #                                  uselist=False,
-    #                                  back_populates='runner')
+    runner_contact = db.relationship('RunnerContact',
+                                     uselist=False,
+                                     back_populates='runner')
 
     def __repr__(self):
         return '<Runner %r>' % self.id
@@ -34,14 +34,11 @@ class Runner(db.Model):
 
 class RunnerContact(db.Model):
     __tablename__ = 'runner_contact'
-    # __table_args__ = (
-    #     db.UniqueConstraint('identification_code'),
-    # )
     #__table_args__ = {'extend_existing': True}
 
     id = db.Column(db.BigInteger, primary_key=True)
-    # runner_id = db.Column(db.BigInteger, db.ForeignKey('runner.id'))
-    # runner = db.relationship('Runner', back_populates='runner_contact')
+    runner_id = db.Column(db.BigInteger, db.ForeignKey('runner.id'))
+    runner = db.relationship('Runner', back_populates='runner_contact')
 
     title = db.Column(db.String)
     firstname = db.Column(db.String)
