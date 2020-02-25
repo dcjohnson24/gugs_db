@@ -13,17 +13,20 @@ class User(UserMixin, db.Model):
 
 class Runner(db.Model):
     __tablename__ = 'runner'
+    __table_args__ = (
+        db.UniqueConstraint('firstname', 'secondname'),
+    )
     #__table_args__ = {'extend_existing': True}
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     firstname = db.Column(db.String)
     secondname = db.Column(db.String)
     gender = db.Column(db.String)
     age_cat_type_id = db.Column(db.Integer)
 
-    runner_contact = db.relationship('RunnerContact',
-                                     uselist=False,
-                                     back_populates='runner')
+    # runner_contact = db.relationship('RunnerContact',
+    #                                  uselist=False,
+    #                                  back_populates='runner')
 
     def __repr__(self):
         return '<Runner %r>' % self.id
@@ -31,13 +34,16 @@ class Runner(db.Model):
 
 class RunnerContact(db.Model):
     __tablename__ = 'runner_contact'
+    # __table_args__ = (
+    #     db.UniqueConstraint('identification_code'),
+    # )
     #__table_args__ = {'extend_existing': True}
 
-    id = db.Column(db.Integer, primary_key=True)
-    runner_id = db.Column(db.Integer, db.ForeignKey('runner.id'))
-    runner = db.relationship('Runner', back_populates='runner_contact')
+    id = db.Column(db.BigInteger, primary_key=True)
+    # runner_id = db.Column(db.BigInteger, db.ForeignKey('runner.id'))
+    # runner = db.relationship('Runner', back_populates='runner_contact')
 
-    title = db.Column(db.Integer)
+    title = db.Column(db.String)
     firstname = db.Column(db.String)
     secondname = db.Column(db.String)
     surname = db.Column(db.String)
@@ -55,7 +61,7 @@ class RunnerContact(db.Model):
     emergencytel2 = db.Column(db.String)
     initials = db.Column(db.String)
     birthdate = db.Column(db.Date)
-    created = db.Column(db.String)
+    created = db.Column(db.Date)
     nationality = db.Column(db.String)
     medical_aid = db.Column(db.Boolean)
     medical_aid_number = db.Column(db.String)
@@ -64,8 +70,8 @@ class RunnerContact(db.Model):
     timingchip = db.Column(db.String)
     identificationtype = db.Column(db.String)
     language = db.Column(db.String)
-    number = db.Column(db.Integer)
-    year = db.Column(db.Integer)
+    number = db.Column(db.String)
+    year = db.Column(db.String)
     residential_address1 = db.Column(db.String)
     postal_address1 = db.Column(db.String)
     residential_address2 = db.Column(db.String)
@@ -82,8 +88,6 @@ class RunnerContact(db.Model):
     postal_postal_code = db.Column(db.String)
     member_club_status = db.Column(db.String)
     club_name = db.Column(db.String)
-
-    runner = db.relationship('Runner', back_populates='runner_contact')
 
     @hybrid_property
     def fullname(self):
