@@ -58,7 +58,7 @@ class RunnerContact(db.Model):
     emergencytel2 = db.Column(db.String)
     initials = db.Column(db.String)
     birthdate = db.Column(db.Date)
-    created = db.Column(db.Date)
+    created = db.Column(db.DateTime)
     nationality = db.Column(db.String)
     medical_aid = db.Column(db.Boolean)
     medical_aid_number = db.Column(db.String)
@@ -91,8 +91,17 @@ class RunnerContact(db.Model):
         return self.firstname + " " + self.surname
 
 
-class Race:
-    pass
+class Race(db.Model):
+    __tablename__ = 'race'
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    pos = db.Column(db.Integer)
+    name = db.Column(db.String)
+    race = db.Column(db.String)
+    time = db.Column(db.Interval)
+
+    def __repr__(self):
+        return '<Race %r>' % self.id
 
 
 class RaceInfo:

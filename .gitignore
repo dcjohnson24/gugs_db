@@ -10,5 +10,8 @@ share/
 lib/
 bin/
 include/
-data/
+*.csv
+*.xlsx
+*.xls
+.deb
 .vscode/
