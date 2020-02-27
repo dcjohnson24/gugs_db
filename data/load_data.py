@@ -15,7 +15,7 @@ from app.models import RunnerContact, Runner, User, Race
 from data.load_db_excel import scrape_all, append_results
 
 
-def ad_timestamp(timestamp):
+def add_timestamp(timestamp):
     if timestamp != 0:
         return datetime.datetime(1601, 1, 1) + datetime.timedelta(seconds=timestamp/10000000)
     return pd.np.nan

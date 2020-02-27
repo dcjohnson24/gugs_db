@@ -16,7 +16,6 @@ class Runner(db.Model):
     __table_args__ = (
         db.UniqueConstraint('firstname', 'secondname'),
     )
-    #__table_args__ = {'extend_existing': True}
 
     id = db.Column(db.BigInteger, primary_key=True)
     firstname = db.Column(db.String)
@@ -24,6 +23,7 @@ class Runner(db.Model):
     gender = db.Column(db.String)
     age_cat_type_id = db.Column(db.Integer)
 
+    # One to One relationship with RunnerContact
     runner_contact = db.relationship('RunnerContact',
                                      uselist=False,
                                      back_populates='runner')
@@ -34,11 +34,13 @@ class Runner(db.Model):
 
 class RunnerContact(db.Model):
     __tablename__ = 'runner_contact'
-    #__table_args__ = {'extend_existing': True}
 
     id = db.Column(db.BigInteger, primary_key=True)
     runner_id = db.Column(db.BigInteger, db.ForeignKey('runner.id'))
+    # One to One relationship with Runner
     runner = db.relationship('Runner', back_populates='runner_contact')
+    # One to Many relationship with Race
+    race = db.relationship('Race')
 
     title = db.Column(db.String)
     firstname = db.Column(db.String)
@@ -93,8 +95,16 @@ class RunnerContact(db.Model):
 
 class Race(db.Model):
     __tablename__ = 'race'
+    __table_args__ = (
+        db.UniqueConstraint('name', 'race', 'time'),
+    )
 
     id = db.Column(db.BigInteger, primary_key=True)
+    # One to Many relationship with RunnerContact
+    runner_contact_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey('runner_contact.id')
+    )
     pos = db.Column(db.Integer)
     name = db.Column(db.String)
     race = db.Column(db.String)
