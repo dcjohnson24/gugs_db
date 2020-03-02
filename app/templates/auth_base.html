@@ -22,6 +22,9 @@
                         <a href="{{ url_for('main.index') }}" class="navbar-item">
                                 Home
                             </a> 
+                            <a href="{{ url_for('main.runner_race_search') }}" class="navbar-item">
+                                Search for Races by Runner
+                            </a> 
                             {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.profile') }}" class="navbar-item">
                                 Profile
@@ -29,7 +32,7 @@
                             {% endif %}
                             {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.search') }}" class="navbar-item">
-                                Search
+                                Search Runner
                             </a>
                             {% endif %}
                             {% if not current_user.is_authenticated %}

@@ -13,5 +13,5 @@ include/
 *.csv
 *.xlsx
 *.xls
-.deb
+*.deb
 .vscode/

@@ -4,7 +4,7 @@ from flask_table import Table, Col, DateCol
 class RunnerResults(Table):
     id = Col('Id', show=False)
     title = Col('title')
-    runner_id = Col('runner_id')
+    runner_id = Col('runner_id', show=False)
     firstname = Col('firstname')
     secondname = Col('secondname')
     surname = Col('surname')
@@ -21,7 +21,7 @@ class RunnerResults(Table):
     emergency2 = Col('emergency2')
     emergencytel2 = Col('emergencytel2')
     initials = Col('initials')
-    birthdate = Col('birthdate')
+    birthdate = DateCol('birthdate')
     created = Col('created')
     nationality = Col('nationality')
     medical_aid = Col('medical_aid')
@@ -48,4 +48,13 @@ class RunnerResults(Table):
     residential_postal_code = Col('residential_postal_code')
     postal_postal_code = Col('postal_postal_code')
     member_club_status = Col('member_club_status')
-    club_name = Col('club_name') 
+    club_name = Col('club_name')
+
+
+class RunnerRaceResults(Table):
+    id = Col('id', show=False)
+    runner_contact_id = Col('runner_contact_id', show=False)
+    pos = Col('pos')
+    name = Col('name')
+    race = Col('race')
+    time = Col('time')

@@ -4,8 +4,8 @@ from pathlib import Path
 sys.path.append(Path.home() / 'gugs_db' / 'data')
 
 import pandas as pd
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import numpy as np
+from sqlalchemy.sql import func, text
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 import datetime
@@ -18,7 +18,7 @@ from data.load_db_excel import scrape_all, append_results
 def add_timestamp(timestamp):
     if timestamp != 0:
         return datetime.datetime(1601, 1, 1) + datetime.timedelta(seconds=timestamp/10000000)
-    return pd.np.nan
+    return np.nan
 
 
 def clean_column_names(df):
@@ -53,6 +53,12 @@ def make_runnercontact_df(df: pd.DataFrame):
     # Keep only GUGS runners
     df = df.loc[df['club_name'].str.contains('gugulethu')]
 
+    # Drop duplicates
+    dups_df = df.loc[df.duplicated(
+        subset=['firstname', 'secondname', 'surname'], keep=False)
+        | df.identification_code.duplicated(keep=False)]
+    df = df.drop(dups_df.index)
+
     # Clean up nationality codes
     corrections = [
         ('germa', 'german'), ('malaw', 'malawian'), 
@@ -66,7 +72,7 @@ def make_runnercontact_df(df: pd.DataFrame):
 
     # Some nationality cells contain dates
     df.loc[df.nationality.apply(
-           lambda s: any(str.isdigit(c) for c in s)), 'nationality'] = pd.np.NaN
+           lambda s: any(str.isdigit(c) for c in s)), 'nationality'] = np.NaN
     df.rename(columns={'langauge': 'language'}, inplace=True)
 
     df.birthdate = pd.to_datetime(df.birthdate)
@@ -133,6 +139,33 @@ def load_df_orm(df, table):
         except IntegrityError:
             db.session.rollback()
     db.session.commit()
+
+
+def find_runner_races_contact(name: str,
+                      similarity: float=0.3):
+    # TODO Make query return the appropriate columns
+    stmt = db.session.query(
+        Race.pos, Race.name, Race.race, Race.time,
+        RunnerContact.fullname, RunnerContact.birthdate
+    ).select_from(Race).join(
+        RunnerContact,
+        func.similarity(Race.name, RunnerContact.fullname) > similarity
+    ).subquery()
+    return (
+        db.session.query(stmt)
+        .filter(func.similarity(stmt.c.name, name) > similarity).all()
+    )
+
+
+def find_runner_races(name: str,
+                      similarity: float=0.3):
+    # TODO Do a query on the race table alone
+    # and compare the results with find_runner_races
+    # It may make more sense to just be able to query races
+    # for a person
+    return db.session.query(Race).filter(
+        func.similarity(Race.name, name) > similarity
+    ).all()
 
 
 if __name__ == '__main__':

@@ -7,10 +7,10 @@ from sqlalchemy import or_, and_
 from datetime import datetime
 import pandas as pd
 
-from .models import db, RunnerContact
-from .forms import RunnerSearchForm
+from .models import db, RunnerContact, Race
+from .forms import RunnerSearchForm, RunnerRaceSearchForm
 import flask_table
-from .tables import RunnerResults
+from .tables import RunnerResults, RunnerRaceResults
 
 main = Blueprint('main', __name__)
 
@@ -39,6 +39,18 @@ def search():
                            name=current_user.name)
 
 
+@main.route('/runner_race_search', methods=['GET', 'POST'])
+def runner_race_search():
+    search = RunnerRaceSearchForm(request.form)
+    if request.method == 'POST':
+        return search_runner_race_results(search)
+
+    return render_template('search.html',
+                           title="GUGS DB",
+                           form=search)
+                           # name=current_user.name)
+
+
 @main.route('/results')
 def search_results(search):
     results = []
@@ -47,7 +59,7 @@ def search_results(search):
     if search_string:
         if search.data['select'] == 'Runner Name':
             qry = RunnerContact.query.filter(
-                RunnerContact.fullname.ilike('%'+search_string+'%')
+                func.similarity(RunnerContact.fullname, search_string) >= 0.3
             )
             results = qry.all()
         else:
@@ -60,5 +72,32 @@ def search_results(search):
         return redirect(url_for('main.search'))
     else:
         table = RunnerResults(results)
+        table.border = True
+        return render_template('results.html', table=table)
+
+
+@main.route('/runner_race_results')
+def search_runner_race_results(search):
+    results = []
+    search_string = search.data['search']
+
+    if search_string:
+        if search.data['select'] == 'Runner Name':
+            # TODO make the similarity strength configurable
+            # with the search term
+            qry = Race.query.filter(
+                func.similarity(Race.name, search_string) >= 0.3
+            )
+            results = qry.all()
+        else:
+            results = Race.query.all()
+    else:
+        results = Race.query.all()
+
+    if not results:
+        flash('No results found!')
+        return redirect(url_for('main.runner_race_search'))
+    else:
+        table = RunnerRaceResults(results)
         table.border = True
         return render_template('results.html', table=table)

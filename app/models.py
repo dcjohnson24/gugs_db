@@ -90,7 +90,11 @@ class RunnerContact(db.Model):
 
     @hybrid_property
     def fullname(self):
-        return self.firstname + " " + self.surname
+        return f'{self.firstname} {self.secondname} {self.surname}'
+
+    @fullname.expression
+    def fullname(cls):
+        return db.func.concat(cls.firstname, ' ', cls.secondname, ' ', cls.surname)
 
 
 class Race(db.Model):
