@@ -1,14 +1,15 @@
 import os
 
-from flask import Flask, g
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_session import Session
 from flask_login import LoginManager
 from flask_sslify import SSLify
+from flask_migrate import Migrate
 
 import config
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app():
@@ -23,8 +24,9 @@ def create_app():
         SQL_ALCHEMY_DATABASE_URI = config.Config.SQL_ALCHEMY_DATABASE_URI
     app.config['SQLALCHEMY_DATABASE_URI'] = SQL_ALCHEMY_DATABASE_URI
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
+
     db.init_app(app)
+    migrate.init_app(app, db)
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
@@ -32,7 +34,7 @@ def create_app():
 
     if 'DYNO' in os.environ:
         SSLify(app)
-        
+
     from .models import User
 
     @login_manager.user_loader

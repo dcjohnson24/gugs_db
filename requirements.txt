@@ -5,6 +5,7 @@ flask_table
 flask_session
 flask-login
 flask-sslify
+Flask-Migrate
 psycopg2
 ipython
 python-dotenv
