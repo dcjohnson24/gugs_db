@@ -6,7 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gugs DB</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" /> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/bulma_min.css') }}" >
+        <img src="{{ url_for('static', filename='img/rcs_gugs_logo_small.jpg') }}"
+            style="display: block; position: absolute; left: 5px;">
 </head>
 
 <body>
@@ -19,32 +22,39 @@
                     <div id="navbarMenuHeroA" class="navbar-menu">
                         <div class="navbar-end">
                          
-                        <a href="{{ url_for('main.index') }}" class="navbar-item">
+                        <a href="{{ url_for('main.index') }}" class="navbar-item" 
+                            style="background-color: #f45c09; color: #000000;">
                                 Home
                             </a> 
-                            <a href="{{ url_for('main.runner_race_search') }}" class="navbar-item">
-                                Search for Races by Runner
+                            <a href="{{ url_for('main.runner_race_search') }}" class="navbar-item" 
+                                style="background-color: #f45c09; color: #000000;">
+                                Search Runner
                             </a> 
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('main.profile') }}" class="navbar-item">
+                            <a href="{{ url_for('main.profile') }}" class="navbar-item"
+                                style="background-color: #f45c09; color: #000000;">
                                 Profile
                             </a> 
                             {% endif %}
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('main.search') }}" class="navbar-item">
-                                Search Runner
+                            <a href="{{ url_for('main.search') }}" class="navbar-item"
+                                style="background-color: #f45c09; color: #000000;">
+                                Search Runner Contact
                             </a>
                             {% endif %}
                             {% if not current_user.is_authenticated %}
-                            <a href="{{ url_for('auth.login') }}" class="navbar-item">
+                            <a href="{{ url_for('auth.login') }}" class="navbar-item" 
+                                style="background-color: #f45c09; color: #000000;">
                                 Login
                             </a>
                             {% endif %}
-                        {# <a href="{{ url_for('auth.signup') }}" class="navbar-item">
+                        {# <a href="{{ url_for('auth.signup') }}" class="navbar-item"
+                            style="background-color: #f45c09; color: #000000;">
                                 Sign Up
                             </a> #}
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('auth.logout') }}" class="navbar-item">
+                            <a href="{{ url_for('auth.logout') }}" class="navbar-item"
+                                style="background-color: #f45c09; color: #000000;">
                                 Logout
                             </a>
                             {% endif %}
