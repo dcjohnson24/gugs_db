@@ -90,7 +90,9 @@ def create_race_table(scrape: bool=False):
     if scrape:
         scrape_all()
     df = append_results()
-    df = lower_string_df(df) 
+    df = lower_string_df(df)
+    df.sex = df.sex.replace({'m': 'male'})
+    df.sex = df.sex.replace({'f': 'female'})
     df = df.replace({pd.NaT: None})
     return df
 
@@ -142,7 +144,7 @@ def load_df_orm(df, table):
 
 
 def find_runner_races_contact(name: str,
-                      similarity: float=0.3):
+                              similarity: float=0.3):
     # TODO Make query return the appropriate columns
     stmt = db.session.query(
         Race.pos, Race.name, Race.race, Race.time,
@@ -176,9 +178,9 @@ if __name__ == '__main__':
 
     runner_df = make_runner_df()
     race_df = create_race_table()
-
-    load_df_orm(runner_df, Runner)
-    load_df_orm(clean_df, RunnerContact)
     load_df_orm(race_df, Race)
+
+    # load_df_orm(runner_df, Runner)
+    # load_df_orm(clean_df, RunnerContact)
 
     add_user(email='drbangospeaks@gmail.com', name='Lizo', password='gugs2020')

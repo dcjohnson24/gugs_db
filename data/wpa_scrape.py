@@ -64,7 +64,7 @@ def parse_args():
 
 def main(month: int=None,
          download_path: Path=None,
-         max_attempts:int=5):
+         max_attempts: int=5):
     start = time.time()
     url = "http://www.wpa.org.za/calendar/dynamicevents.aspx"
     # You must check the box 'Use a proxy server' for proxy settings when connected to CPUT network

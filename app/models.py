@@ -113,6 +113,7 @@ class Race(db.Model):
     name = db.Column(db.String)
     race = db.Column(db.String)
     time = db.Column(db.Interval)
+    sex = db.Column(db.String)
 
     def __repr__(self):
         return '<Race %r>' % self.id

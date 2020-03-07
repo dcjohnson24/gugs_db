@@ -58,3 +58,4 @@ class RunnerRaceResults(Table):
     name = Col('name')
     race = Col('race')
     time = Col('time')
+    sex = Col('sex')
