@@ -178,8 +178,8 @@ if __name__ == '__main__':
 
     runner_df = make_runner_df()
     race_df = create_race_table()
-    load_df_orm(race_df, Race)
 
+    load_df_orm(race_df, Race)
     # load_df_orm(runner_df, Runner)
     # load_df_orm(clean_df, RunnerContact)
 

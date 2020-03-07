@@ -20,7 +20,7 @@ import argparse
 
 
 def select_month(browser, month: int=None):
-    month_list = browser.find_elements_by_class_name('spnMonthSelector')
+    browser.find_elements_by_class_name('spnMonthSelector')
     month_table = browser.find_element_by_id('CalendarFilter')
     month_table.find_element_by_id(str(month)).click()
 
@@ -65,13 +65,23 @@ def parse_args():
 def main(month: int=None,
          download_path: Path=None,
          max_attempts: int=5):
+    current_month = datetime.datetime.now().month
+
+    if month is None:
+        month = current_month
+
+    month_abbr = calendar.month_abbr[month]
+    month_name = calendar.month_name[month]
+
+    current_year = datetime.datetime.now().year
+
+    if month > current_month:
+        print(f"We aren't in {month_name} {current_year} yet. Skipping...")
+        return
+
     start = time.time()
     url = "http://www.wpa.org.za/calendar/dynamicevents.aspx"
     # You must check the box 'Use a proxy server' for proxy settings when connected to CPUT network
-    if month is None:
-        month = datetime.datetime.now().month
-    month_abbr = calendar.month_abbr[month]
-    month_name = calendar.month_name[month]
     # driver_path = Path.home() / 'gugs_db' / 'chromedriver'
     # driver_path = Path.home() / 'Documents' / 'RCS_GUGS_DB' / 'chromedriver.exe'
 
