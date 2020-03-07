@@ -25,6 +25,12 @@ def select_month(browser, month: int=None):
     month_table.find_element_by_id(str(month)).click()
 
 
+def select_year(browser, year: int=None):    
+    select = Select(browser.find_element_by_id('ddlSelectedYear'))
+    select.select_by_visible_text(f'{year}')
+    browser.find_element_by_class_name('filterUpdate').click()
+
+
 def set_download_directory(path: str, options: dict):
     if not isinstance(path, str):
         path = str(path)
@@ -63,6 +69,7 @@ def parse_args():
 
 
 def main(month: int=None,
+         year: int=None,
          download_path: Path=None,
          max_attempts: int=5):
     current_month = datetime.datetime.now().month
@@ -74,9 +81,15 @@ def main(month: int=None,
     month_name = calendar.month_name[month]
 
     current_year = datetime.datetime.now().year
+    if year is None:
+        year = current_year
 
-    if month > current_month:
-        print(f"We aren't in {month_name} {current_year} yet. Skipping...")
+    if year > current_year:
+        print(f"We aren't in {year} yet. Skipping...")
+        return
+
+    if month > current_month and year == current_year:
+        print(f"We aren't in {month_name} {year} yet. Skipping...")
         return
 
     start = time.time()
@@ -100,8 +113,11 @@ def main(month: int=None,
     browser.get(url)
 
     # Filter races by month
-    print(f'Fetching {month_name} races\n')
+    print(f'Fetching {month_name} races for {year}\n')
     select_month(browser, month)
+    # By default, the year in the dropdown list is the current year
+    if year < current_year:
+        select_year(browser, year)
 
     time.sleep(5)
     # Filter only road events
