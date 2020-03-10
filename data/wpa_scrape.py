@@ -101,8 +101,8 @@ def main(month: int=None,
     options = webdriver.ChromeOptions()
 
     if download_path:
-        download_path = Path(download_path) / month_abbr
-        download_path.mkdir(exist_ok=True)
+        download_path = Path(download_path) / str(year) / month_abbr
+        download_path.mkdir(exist_ok=True, parents=True)
         options = set_download_directory(path=download_path, options=options)
     else:
         download_path = Path.home() / 'Downloads'

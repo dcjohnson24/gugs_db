@@ -10,5 +10,6 @@ psycopg2
 ipython
 python-dotenv
 requests
+openpyxl
 pandas
 gunicorn

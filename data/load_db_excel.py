@@ -6,11 +6,12 @@ from pathlib import Path
 from typing import Dict
 from sqlalchemy import create_engine
 import io
+import datetime
+
 from data import wpa_scrape
 
 
 REGEX = '^(Club|TeamName)'
-RACE_DOWNLOAD_PATH = Path.home() / 'gugs_db' / 'data' / 'Race_downloads'
 
 
 def find_str(row, search_str: str) -> pd.Series:
@@ -173,6 +174,9 @@ def concat_name_col(df: pd.DataFrame):
     elif all(x in df.columns for x in ['NAME', 'NAME 2', 'NAME 3']):
         df['NAME'] = df['NAME'].str.cat(df[['NAME 2', 'NAME 3']], na_rep='', sep=' ')
         df.drop(columns=['NAME 2', 'NAME 3'], inplace=True)
+    elif all(x in df.columns for x in ['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3']):
+        df['NAME'] = df['FIRST NAME'].str.cat(df[['SURNAME', 'SURNAME 2', 'SURNAME 3']], na_rep='', sep=' ')
+        df.drop(columns=['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3'], inplace=True)
     return df
 
 
@@ -294,24 +298,31 @@ def clean_time(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def scrape_all(download_path: str=None):
-    if not download_path:
-        download_path = RACE_DOWNLOAD_PATH
-    for i in range(1, 12):
-        wpa_scrape.main(month=i, download_path=download_path)
+def set_download_dir():
+    return Path.home() / 'gugs_db' / 'data' / 'Race_downloads'
 
 
-def append_results(download_path: str=None):
+def scrape_all(download_path: str=None, year: int=None):
+    if download_path is None:
+        download_path = set_download_dir()
+
+    for i in range(1, 13):
+        wpa_scrape.main(month=i, download_path=download_path, year=year)
+
+
+def append_results(download_path: str=None, year: int=None):
     # p = Path(r'C:\Users\dj3794\Documents\RCS_GUGS_DB\Race_downloads')
-    if not download_path:
-        download_path = RACE_DOWNLOAD_PATH
-    # p = Path.home() / 'gugs_db' / 'data' / 'Race_downloads'
+    if download_path is None:
+        if year is None:
+            year = datetime.datetime.now().year
+        download_path = set_download_dir() / str(year)
 
     dir_list = [x for x in download_path.iterdir() if x.is_dir()]
     csv_to_xls(dir_list)
 
     sheets_dict = extract_race_sheets_excel(dir_list)
     race_table_full, cols_set = compile_gugs_data(sheets_dict)
+
     # Just leave the name as a single column in the DB
     race_table_full = (
         race_table_full.loc[:, ~race_table_full
@@ -322,7 +333,6 @@ def append_results(download_path: str=None):
     race_table_full = race_table_full[['pos', 'name',
                                        'race', 'time',
                                        'sex']]
-
     race_table_full_clean = clean_time(race_table_full)
     race_table_full_clean.time = pd.to_timedelta(
         race_table_full_clean.time.astype(str)

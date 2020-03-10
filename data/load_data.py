@@ -86,10 +86,10 @@ def make_runnercontact_df(df: pd.DataFrame):
     return df
 
 
-def create_race_table(scrape: bool=False):
+def create_race_table(scrape: bool=False, year: int=None):
     if scrape:
-        scrape_all()
-    df = append_results()
+        scrape_all(year=year)
+    df = append_results(year=year)
     df = lower_string_df(df)
     df.sex = df.sex.replace({'m': 'male'})
     df.sex = df.sex.replace({'f': 'female'})
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     runner_df = make_runner_df()
     race_df = create_race_table()
 
-    load_df_orm(race_df, Race)
+    # load_df_orm(race_df, Race)
     # load_df_orm(runner_df, Runner)
     # load_df_orm(clean_df, RunnerContact)
 
