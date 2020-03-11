@@ -16,6 +16,19 @@ services:
     depends_on:
       - database 
   
+  tensorflow:
+    container_name: tensorflow
+    build:
+      context: .
+      dockerfile: Dockerfile-tensorflow
+    ports: 
+      - "8500:8500"
+    depends_on: 
+      - database
+    entrypoint: ["sh", "-c", "sleep 2373600"]
+    user: ${CURRENT_UID}
+    
+  
   database:
     container_name: postgres_sqlalchemy
     image: postgres:latest 
@@ -27,4 +40,6 @@ services:
     
 volumes:
   gugs_vol:
+  
+  
   
