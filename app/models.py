@@ -114,6 +114,11 @@ class Race(db.Model):
     race = db.Column(db.String)
     time = db.Column(db.Interval)
     sex = db.Column(db.String)
+    age = db.Column(db.Numeric)
+    cat = db.Column(db.String)
+    lic_no = db.Column(db.String)
+    distance_km = db.Column(db.Float)
+    race_year = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Race %r>' % self.id

@@ -1,2 +1,5 @@
 pandas
 scikit-learn
+fuzzywuzzy
+python-Levenshtein
+tqdm

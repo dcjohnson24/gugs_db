@@ -86,10 +86,11 @@ def find_race_sheets(xl: pd.ExcelFile) -> list:
     sheet_list = []
     for sheet in xl.sheet_names:
         df = pd.read_excel(xl, sheet_name=sheet)
-        match_count = df.apply(find_str, args=(REGEX,), axis=1).sum()
+        row_matches = df.apply(find_str, args=(REGEX,), axis=1).sum()
+        column_matches = find_str(df.columns, REGEX)
+        match_count = row_matches + column_matches
         try:
             if match_count > 0:
-
                 new_df = load_excel(xl, sheet_name=sheet)
                 if empty_col(new_df):
                     print(f"Time column is empty. Skipping sheet '{sheet}'")
@@ -97,6 +98,7 @@ def find_race_sheets(xl: pd.ExcelFile) -> list:
                 else:
                     print(f"Saving sheet '{sheet}'")
                     sheet_list.append((sheet, new_df))
+                
         except ValueError:
             if len(match_count) == 0:
                 print(f'No matches for regex pattern {REGEX} found'
@@ -162,22 +164,43 @@ def split_name_col(df: pd.DataFrame):
 
 def concat_name_col(df: pd.DataFrame):
     df.columns = df.columns.str.upper()
-    if all(x in df.columns for x in ['NAME', 'SURNAME']):
-        df['NAME'] = df['NAME'].str.cat(df['SURNAME'], na_rep='', sep=' ')
-        #df['NAME'] = df['NAME'] + ' ' + df['SURNAME']
-        #if df['NAME'].isna().any():
-        df.drop(columns='SURNAME', inplace=True)
-    elif all(x in df.columns for x in ['FIRSTNAME', 'LASTNAME']):
-        df['NAME'] = df['FIRSTNAME'].str.cat(df['LASTNAME'], na_rep='', sep=' ')
-        # df['NAME'] = df['FIRSTNAME'] + ' ' + df['LASTNAME']
-        df.drop(columns=['FIRSTNAME', 'LASTNAME'], inplace=True)
-    elif all(x in df.columns for x in ['NAME', 'NAME 2', 'NAME 3']):
-        df['NAME'] = df['NAME'].str.cat(df[['NAME 2', 'NAME 3']], na_rep='', sep=' ')
-        df.drop(columns=['NAME 2', 'NAME 3'], inplace=True)
-    elif all(x in df.columns for x in ['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3']):
-        df['NAME'] = df['FIRST NAME'].str.cat(df[['SURNAME', 'SURNAME 2', 'SURNAME 3']], na_rep='', sep=' ')
-        df.drop(columns=['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3'], inplace=True)
-    return df
+
+    def concat_col(cols: list):
+        if all(x in df.columns for x in cols):
+            df['NAME'] = df[cols[0]].str.cat(df[cols[1:]], na_rep='', sep=' ')
+            drop_cols = [x for x in cols if x != 'NAME']
+            return df.drop(columns=drop_cols)
+
+    name_combos = [
+        ['NAME', 'SURNAME'], ['FIRSTNAME', 'LASTNAME'], ['NAME', 'NAME 2', 'NAME 3'],
+        ['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3'], ['FIRST NAME', 'LAST NAME']
+    ]
+
+    for combo in name_combos:
+        s = concat_col(combo)
+        if s is None:
+            new_df = df
+        else:
+            new_df = s
+    return new_df
+
+    # df.columns = df.columns.str.upper()    
+    # if all(x in df.columns for x in ['NAME', 'SURNAME']):
+    #     df['NAME'] = df['NAME'].str.cat(df['SURNAME'], na_rep='', sep=' ')
+    #     #df['NAME'] = df['NAME'] + ' ' + df['SURNAME']
+    #     #if df['NAME'].isna().any():
+    #     df.drop(columns='SURNAME', inplace=True)
+    # elif all(x in df.columns for x in ['FIRSTNAME', 'LASTNAME']):
+    #     df['NAME'] = df['FIRSTNAME'].str.cat(df['LASTNAME'], na_rep='', sep=' ')
+    #     # df['NAME'] = df['FIRSTNAME'] + ' ' + df['LASTNAME']
+    #     df.drop(columns=['FIRSTNAME', 'LASTNAME'], inplace=True)
+    # elif all(x in df.columns for x in ['NAME', 'NAME 2', 'NAME 3']):
+    #     df['NAME'] = df['NAME'].str.cat(df[['NAME 2', 'NAME 3']], na_rep='', sep=' ')
+    #     df.drop(columns=['NAME 2', 'NAME 3'], inplace=True)
+    # elif all(x in df.columns for x in ['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3']):
+    #     df['NAME'] = df['FIRST NAME'].str.cat(df[['SURNAME', 'SURNAME 2', 'SURNAME 3']], na_rep='', sep=' ')
+    #     df.drop(columns=['FIRST NAME', 'SURNAME', 'SURNAME 2', 'SURNAME 3'], inplace=True)
+    # return df
 
 
 # Use explicit check for columns
@@ -189,15 +212,27 @@ def drop_cols(df: pd.DataFrame, cols_list: list) -> pd.DataFrame:
 
 def compile_gugs_data(sheets_dict: Dict[str, pd.DataFrame]):
     big_list = []
-    race_cols = '|'.join(['TIME', 'FINISH', 'POS', 'Name', 'SEX', 'GENDER'])
+    race_cols = '|'.join(['TIME', 'FINISH', 'FINISH TIME', 'POS', 'Name',
+                          'AGE', 'Participant', 'SEX', 'GENDER',
+                          'LIC NO', 'LIC', 'CAT', 'LICENSE', 'LICENSENR',
+                          'RACE NO', 'RACE NUMBER', 'RACENO', 'RACENUMBER',
+                          'ELAPSED_TIME']) # 'BIB#', 'BIB'
     gugs_variants = '|'.join(['Gugs', 'RCS', 'Gugulethu'])
     replacements = {'TIME': ['FINISH',
                              'GUN FINISH',
                              'NETTIME',
-                             'RACETIME'],
+                             'RACETIME',
+                             'ELAPSED_TIME',
+                             'FINISH TIME'],
                     'POS': ['POSITION'],
-                    'LASTNAME': ['SURNAME', 'NAME 2'],
-                    'SEX': ['GENDER']}
+                    'LASTNAME': ['SURNAME', 'NAME 2', 'LAST NAME'],
+                    'NAME': ['PARTICIPANT'],
+                    'SEX': ['GENDER'],
+                    'LIC NO': ['LICENSE', 'RACE NO',
+                               'RACE NUMBER', 'RACENO',
+                               'RACENUMBER', 'LICENSENR'],
+                               #'BIB#', 'BIB'],
+                    'CAT': ['CATEGORY']}
     #race_cols_full_set = set()
     race_cols_full_list = []
     club_col_set = set()
@@ -329,10 +364,11 @@ def append_results(download_path: str=None, year: int=None):
                             .columns.str.contains('^Unnamed', case=False)]
     )
     race_table_full.columns = race_table_full.columns.str.lower()
-
     race_table_full = race_table_full[['pos', 'name',
                                        'race', 'time',
-                                       'sex']]
+                                       'sex', 'age',
+                                       'cat', 'lic no']]
+    race_table_full.rename(columns={'lic no': 'lic_no'}, inplace=True)
     race_table_full_clean = clean_time(race_table_full)
     race_table_full_clean.time = pd.to_timedelta(
         race_table_full_clean.time.astype(str)

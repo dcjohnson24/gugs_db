@@ -86,6 +86,66 @@ def make_runnercontact_df(df: pd.DataFrame):
     return df
 
 
+def fix_distances(problem_df: pd.DataFrame):
+    df = problem_df.copy(deep=True)
+
+    def extract_and_replace(some_string: str):
+        df.distance_km.loc[df.distance_km == some_string] = \
+            df.race.loc[df.distance_km == some_string] \
+            .str.extract(r'(\d{1,2}km)', expand=False)
+
+    str_list = ['sheet1', 'results', 'wpa']
+    for s in str_list:
+        extract_and_replace(s)
+
+    df.distance_km.loc[df.distance_km == '1o'] = '10'
+
+    def replace_wpa_walking(name: str, val: str):
+        df.distance_km.loc[
+            np.logical_and(df.name == name,
+                           df.distance_km == 'sheet2')] = val
+
+    names = df.loc[df.distance_km == 'sheet2'].name.values
+
+    rep_list = [
+        (names[0], '10'), (names[1], '5'), (names[2], '3'),
+        (names[3], '3'), (names[4], '3'), (names[5], '3'),
+        (names[6], '1'), (names[7], '1')
+    ]
+
+    for name, val in rep_list:
+        replace_wpa_walking(name, val)
+
+    # Knysna forest
+    df.distance_km.loc[
+        np.logical_and(df.name == 'Bernard Rukadza',
+                       df.distance_km == '')] = '42'
+    df.distance_km.loc[df.distance_km == ''] = '21'
+
+    def replace_missing_race(name, val):
+        df.distance_km.loc[
+            df.race == name
+        ] = val
+
+    repl_list = [
+        ('avbobresults2019_wpa_fullresults', '15'),
+        ('fnb122019fullresultsupdate_sheet1', '12'),
+        ('satoricamelrunresults-05sep19_results', '16')
+    ]
+
+    for name, val in repl_list:
+        replace_missing_race(name, val)
+
+    df.distance_km = df.distance_km.str.split('.').str[0]
+    df.distance_km = df.distance_km.str.split('km').str[0]
+
+    df.distance_km = df.distance_km.astype(int)
+    bins = [1, 5, 10, 21, 42, 50, 100]
+    df['distance_bin'] = pd.cut(df.distance_km, bins, include_lowest=True)
+
+    return df
+
+
 def create_race_table(scrape: bool=False, year: int=None):
     if scrape:
         scrape_all(year=year)
@@ -94,6 +154,15 @@ def create_race_table(scrape: bool=False, year: int=None):
     df.sex = df.sex.replace({'m': 'male'})
     df.sex = df.sex.replace({'f': 'female'})
     df = df.replace({pd.NaT: None})
+    df['distance_km'] = df['race'].apply(lambda x: x.split('_')[1].split('k')[0])
+    # df['distance_km'] = df['distance_km'].astype(float)
+    df['race_year'] = datetime.datetime.now().year if year is None else year
+    df.lic_no = df.lic_no.fillna(np.nan)
+    df['lic_no'] = df['lic_no'].astype(str).apply(lambda x: x.split('.')[0])
+    mask = np.logical_and(
+        df.lic_no.str.contains(r'[a-zA-Z]'),
+        df.lic_no != 'nan')
+    df.lic_no.loc[mask] = df.lic_no.loc[mask].str.split(r'[a-zA-Z]').str[-1]
     return df
 
 
@@ -177,9 +246,12 @@ if __name__ == '__main__':
     app.app_context().push()
 
     runner_df = make_runner_df()
-    race_df = create_race_table()
+    race_df = create_race_table(year=2019)
+    race_df = fix_distances(race_df)
+    # race_df_list = [create_race_table(year=year) for year in [2020, 2019]]
 
-    # load_df_orm(race_df, Race)
+    # for race_df in race_df_list:
+    #     load_df_orm(race_df, Race)
     # load_df_orm(runner_df, Runner)
     # load_df_orm(clean_df, RunnerContact)
 
