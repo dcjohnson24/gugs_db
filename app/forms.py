@@ -17,4 +17,4 @@ class TopRunnerForm(Form):
     choices = [('male', 'Male'), ('female', 'Female')]
     select = SelectField('Find top runners by gender', choices=choices)
     search = StringField('Enter race name')
-    n = IntegerField('Number of runners to display (integer)')
+    n = IntegerField('Number of runners to display (default=10)')
