@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- <h1 class='title'> Welcome, {{name}}! </h1> -->
-<!-- <h1 class='title'> Welcome! </h1> -->
 {% from "_formhelpers.html" import render_field %}
 <form method="post">
     <dl>
-        {{render_field(form.select)}}
+            {{ render_field(form.select) }}
         <p>
-            {{render_field(form.search)}}
+                {{ render_field(form.search) }}
+        </p>
+        <p> 
+                {{ render_field(form.n) }}
         </p>
     </dl>
     <p>

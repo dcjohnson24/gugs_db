@@ -32,6 +32,11 @@
                                 font-weight: 900;">
                                 Search Runner
                             </a> 
+                            <a href="{{ url_for('main.top_runners_search') }}" class="navbar-item" 
+                                style="background-color: #f45c09; color: #000000;
+                                font-weight: 900;">
+                                Search Race
+                            </a> 
                             {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.profile') }}" class="navbar-item"
                                 style="background-color: #f45c09; color: #000000;
