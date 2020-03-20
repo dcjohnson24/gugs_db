@@ -34,6 +34,7 @@ class Runner(db.Model):
 
 class RunnerContact(db.Model):
     __tablename__ = 'runner_contact'
+    __table_args__ = (db.UniqueConstraint('firstname', 'secondname', 'surname', 'identification_code'), )
 
     id = db.Column(db.BigInteger, primary_key=True)
     runner_id = db.Column(db.BigInteger, db.ForeignKey('runner.id'))
@@ -119,6 +120,7 @@ class Race(db.Model):
     lic_no = db.Column(db.String)
     distance_km = db.Column(db.Float)
     race_year = db.Column(db.Integer)
+    distance_cat = db.Column(db.String)
 
     def __repr__(self):
         return '<Race %r>' % self.id

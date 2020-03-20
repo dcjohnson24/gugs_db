@@ -1,8 +1,8 @@
-"""Added a sex column to the Race table
+"""Add cat, lic_no, distance_km, and race_year to table
 
-Revision ID: 147e337cb8d1
+Revision ID: 245d4da5b9e4
 Revises: 
-Create Date: 2020-03-06 16:03:05.225585
+Create Date: 2020-03-19 19:47:37.347953
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '147e337cb8d1'
+revision = '245d4da5b9e4'
 down_revision = None
 branch_labels = None
 depends_on = None
