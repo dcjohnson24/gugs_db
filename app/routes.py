@@ -8,7 +8,7 @@ from datetime import datetime
 import pandas as pd
 
 from .models import db, RunnerContact, Race
-from .forms import RunnerSearchForm, RunnerRaceSearchForm
+from .forms import RunnerSearchForm, RunnerRaceSearchForm, TopRunnerForm
 import flask_table
 from .tables import RunnerResults, RunnerRaceResults
 
@@ -49,6 +49,15 @@ def runner_race_search():
                            title="GUGS DB",
                            form=search)
                            # name=current_user.name)
+
+
+@main.route('/top_runners_search', methods=['GET', 'POST'])
+def top_runners_search():
+    search = TopRunnerForm(request.form)
+    if request.method == 'POST':
+        return top_runners(search)
+
+    return render_template('search_top.html', title='GUGS DB', form=search)
 
 
 @main.route('/results')
@@ -97,6 +106,42 @@ def search_runner_race_results(search):
     if not results:
         flash('No results found!')
         return redirect(url_for('main.runner_race_search'))
+    else:
+        table = RunnerRaceResults(results)
+        table.border = True
+        return render_template('results.html', table=table)
+
+
+@main.route('/top_runners')
+def top_runners(search):
+    results = []
+    search_string = search.data['search']
+    sex = search.data['select']
+    n = search.data['n']
+    if n is None:
+        n = 10
+
+    if search_string:
+        if sex:
+            qry = (
+                db.session.query(Race)
+                .filter(Race.race.ilike(f'%{search_string}%'), Race.sex == sex)
+                .order_by(Race.time).limit(n)
+            )
+            # Change output from seconds to HH:MM:SS
+            for x in qry.all():
+                x.time = str(x.time)
+            results = qry.all()
+        else:
+            results = (
+                db.session.query(Race)
+                .filter(Race.race.ilike(f'%{search_string}%'))
+                .order_by(Race.time).limit(n)
+            )
+
+    if not results:
+        flash('No results found!')
+        return redirect(url_for('main.top_runners_search'))
     else:
         table = RunnerRaceResults(results)
         table.border = True
