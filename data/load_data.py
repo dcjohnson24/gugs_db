@@ -87,6 +87,7 @@ def make_runnercontact_df(df: pd.DataFrame):
 
 
 def fix_distances(problem_df: pd.DataFrame):
+    # Mainly needed for 2019 data
     df = problem_df.copy(deep=True)
 
     def extract_and_replace(some_string: str):
@@ -100,21 +101,21 @@ def fix_distances(problem_df: pd.DataFrame):
 
     df.distance_km.loc[df.distance_km == '1o'] = '10'
 
-    def replace_wpa_walking(name: str, val: str):
-        df.distance_km.loc[
-            np.logical_and(df.name == name,
-                           df.distance_km == 'sheet2')] = val
-
     names = df.loc[df.distance_km == 'sheet2'].name.values
+    if names.size > 0:
+        def replace_wpa_walking(name: str, val: str):
+            df.distance_km.loc[
+                np.logical_and(df.name == name,
+                               df.distance_km == 'sheet2')] = val
 
-    rep_list = [
-        (names[0], '10'), (names[1], '5'), (names[2], '3'),
-        (names[3], '3'), (names[4], '3'), (names[5], '3'),
-        (names[6], '1'), (names[7], '1')
-    ]
+        rep_list = [
+            (names[0], '10'), (names[1], '5'), (names[2], '3'),
+            (names[3], '3'), (names[4], '3'), (names[5], '3'),
+            (names[6], '1'), (names[7], '1')
+        ]
 
-    for name, val in rep_list:
-        replace_wpa_walking(name, val)
+        for name, val in rep_list:
+            replace_wpa_walking(name, val)
 
     # Knysna forest
     df.distance_km.loc[
@@ -141,8 +142,8 @@ def fix_distances(problem_df: pd.DataFrame):
 
     df.distance_km = df.distance_km.astype(int)
     bins = [1, 5, 10, 21, 42, 50, 100]
-    df['distance_bin'] = pd.cut(df.distance_km, bins, include_lowest=True)
-
+    df['distance_cat'] = pd.cut(df.distance_km, bins, include_lowest=True)
+    df.distance_cat = df.distance_cat.astype(str)
     return df
 
 
@@ -239,6 +240,17 @@ def find_runner_races(name: str,
     ).all()
 
 
+def combine_race_years():
+    race_df_list = []
+
+    for year in [2019, 2020]:
+        race_df = create_race_table(year=year)
+        race_df = fix_distances(race_df)
+        race_df_list.append(race_df)
+
+    return race_df_list
+
+
 if __name__ == '__main__':
     df = pd.read_csv('data/export.csv')
     clean_df = make_runnercontact_df(df)
@@ -246,13 +258,13 @@ if __name__ == '__main__':
     app.app_context().push()
 
     runner_df = make_runner_df()
-    race_df = create_race_table(year=2019)
-    race_df = fix_distances(race_df)
-    # race_df_list = [create_race_table(year=year) for year in [2020, 2019]]
-
+    # race_df_list = combine_race_years()
     # for race_df in race_df_list:
-    #     load_df_orm(race_df, Race)
-    # load_df_orm(runner_df, Runner)
-    # load_df_orm(clean_df, RunnerContact)
+    # load_df_orm(race_df, Race)
+
+    race_df = create_race_table(year=2020)
+    load_df_orm(race_df, Race)
+    load_df_orm(runner_df, Runner)
+    load_df_orm(clean_df, RunnerContact)
 
     add_user(email='drbangospeaks@gmail.com', name='Lizo', password='gugs2020')
