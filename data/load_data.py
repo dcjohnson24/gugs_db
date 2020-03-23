@@ -263,6 +263,8 @@ if __name__ == '__main__':
     # load_df_orm(race_df, Race)
 
     race_df = create_race_table(year=2020)
+    race_df = fix_distances(race_df)
+
     load_df_orm(race_df, Race)
     load_df_orm(runner_df, Runner)
     load_df_orm(clean_df, RunnerContact)
