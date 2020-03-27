@@ -2,4 +2,4 @@ FROM tensorflow/tensorflow:2.0.1-py3
 
 COPY . /developer
 WORKDIR /developer
-RUN pip install -r requirements-tf.txt
+RUN pip install -r requirements-ts.txt
