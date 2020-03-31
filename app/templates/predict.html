@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- <h1 class='title'> Welcome, {{name}}! </h1> -->
+<!-- <h1 class='title'> Welcome! </h1> -->
+<h3> Predict next race time </h3>
+
+{% from "_formhelpers.html" import render_field %}
+<form method="post">
+    <dl>
+        <p>
+            {{ render_field(form.search) }}
+        </p>
+    </dl>
+    <p>
+        <input type="submit" value="Search">
+    </p>
+    {% for x in result %}
+        <p align="center"> <b> {{ x }} </b> </p>
+    {% endfor %}
+</form>
+{% endblock %}

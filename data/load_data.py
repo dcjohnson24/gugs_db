@@ -1,7 +1,7 @@
 import sys
 import os
 from pathlib import Path
-sys.path.append(Path.home() / 'gugs_db' / 'data')
+sys.path.append(str(Path.home() / 'gugs_db' / 'data'))
 
 import pandas as pd
 import numpy as np
@@ -260,13 +260,12 @@ if __name__ == '__main__':
     runner_df = make_runner_df()
     # race_df_list = combine_race_years()
     # for race_df in race_df_list:
-    # load_df_orm(race_df, Race)
 
     race_df = create_race_table(year=2020)
     race_df = fix_distances(race_df)
 
     load_df_orm(race_df, Race)
-    load_df_orm(runner_df, Runner)
-    load_df_orm(clean_df, RunnerContact)
+    # load_df_orm(runner_df, Runner)
+    # load_df_orm(clean_df, RunnerContact)
 
     add_user(email='drbangospeaks@gmail.com', name='Lizo', password='gugs2020')

@@ -6,7 +6,7 @@ ENV FLASK_ENV=${FLASK_ENV_ARG}
 COPY . /
 WORKDIR /
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt -r requirements-ts.txt
 RUN useradd gugs
 USER gugs
 CMD gunicorn -b 0.0.0.0:$PORT wsgi:app

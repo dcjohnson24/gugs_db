@@ -18,3 +18,7 @@ class TopRunnerForm(Form):
     select = SelectField('Find top runners by gender', choices=choices)
     search = StringField('Enter race name')
     n = IntegerField('Number of runners to display (default=10)')
+
+
+class PredictForm(Form):
+    search = StringField('Search by runner name')
