@@ -13,3 +13,4 @@ requests
 openpyxl
 pandas
 gunicorn
+pytest

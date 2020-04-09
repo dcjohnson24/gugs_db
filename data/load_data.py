@@ -265,7 +265,6 @@ if __name__ == '__main__':
     race_df = fix_distances(race_df)
 
     load_df_orm(race_df, Race)
-    # load_df_orm(runner_df, Runner)
-    # load_df_orm(clean_df, RunnerContact)
-
+    load_df_orm(runner_df, Runner)
+    load_df_orm(clean_df, RunnerContact)
     add_user(email='drbangospeaks@gmail.com', name='Lizo', password='gugs2020')

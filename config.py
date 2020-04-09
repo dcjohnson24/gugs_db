@@ -19,5 +19,14 @@ class Config:
     SQL_ALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
 
 
+class TestConfig(Config):
+    TESTING = True
+    DEBUG = True
+    WTF_CSRF_ENABLED = False
+    host = os.popen('docker-machine.exe ip').read().strip()
+    port = 5433
+    SQL_ALCHEMY_DATABASE_URI = f'postgresql+psycopg2://test_user:test_pass@{host}:{port}/gugs_test_db'
+
+
 class ProductionConfig:
     SQL_ALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
