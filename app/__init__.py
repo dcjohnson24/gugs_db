@@ -21,6 +21,10 @@ def create_app():
         SQL_ALCHEMY_DATABASE_URI = (
             config.ProductionConfig.SQL_ALCHEMY_DATABASE_URI
         )
+    elif env == 'testing':
+        SQL_ALCHEMY_DATABASE_URI = (
+            config.TestConfig.SQL_ALCHEMY_DATABASE_URI
+        )
     else:
         SQL_ALCHEMY_DATABASE_URI = config.Config.SQL_ALCHEMY_DATABASE_URI
     app.config['SQLALCHEMY_DATABASE_URI'] = SQL_ALCHEMY_DATABASE_URI

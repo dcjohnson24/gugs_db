@@ -9,6 +9,8 @@ from sqlalchemy.sql import func, text
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 import datetime
+from dotenv import load_dotenv
+import argparse
 
 from app import db, create_app
 from app.models import RunnerContact, Runner, User, Race
@@ -70,7 +72,7 @@ def make_runnercontact_df(df: pd.DataFrame):
     for prefix, cor in corrections:
         df.loc[df.nationality.str.contains(prefix), 'nationality'] = cor
 
-    # Some nationality cells contain dates
+    # Some nationality entries contain dates
     df.loc[df.nationality.apply(
            lambda s: any(str.isdigit(c) for c in s)), 'nationality'] = np.NaN
     df.rename(columns={'langauge': 'language'}, inplace=True)
@@ -156,7 +158,6 @@ def create_race_table(scrape: bool=False, year: int=None):
     df.sex = df.sex.replace({'f': 'female'})
     df = df.replace({pd.NaT: None})
     df['distance_km'] = df['race'].apply(lambda x: x.split('_')[1].split('k')[0])
-    # df['distance_km'] = df['distance_km'].astype(float)
     df['race_year'] = datetime.datetime.now().year if year is None else year
     df.lic_no = df.lic_no.fillna(np.nan)
     df['lic_no'] = df['lic_no'].astype(str).apply(lambda x: x.split('.')[0])
@@ -199,7 +200,7 @@ def load_df_orm(df, table):
     """Load table into SQL using ORM
 
     Arguments:
-        df {pd.DataFrame} -- DataFrame matching the 
+        df {pd.DataFrame} -- DataFrame matching the
             schema of the table class
         table {db.Model} -- the ORM model class
     """
@@ -258,14 +259,20 @@ if __name__ == '__main__':
     app.app_context().push()
 
     runner_df = make_runner_df()
-    # race_df_list = combine_race_years()
-    # for race_df in race_df_list:
 
-    race_df = create_race_table(year=2020)
+    parser = argparse.ArgumentParser(description='Find races for a certain year')
+    parser.add_argument('--year', type=int,
+                        default=2020, help='Find races for a given year')
+    # Calling --scrape will be True.
+    parser.add_argument('--scrape', action='store_true')
+    args = parser.parse_args()
+
+    race_df = create_race_table(scrape=args.scrape, year=args.year)
     race_df = fix_distances(race_df)
 
     load_df_orm(race_df, Race)
-    # load_df_orm(runner_df, Runner)
-    # load_df_orm(clean_df, RunnerContact)
-
-    add_user(email='drbangospeaks@gmail.com', name='Lizo', password='gugs2020')
+    load_df_orm(runner_df, Runner)
+    load_df_orm(clean_df, RunnerContact)
+    add_user(email=os.getenv('ADMIN_EMAIL'),
+             name=os.getenv('ADMIN_NAME'),
+             password=os.getenv('ADMIN_PASSWORD'))

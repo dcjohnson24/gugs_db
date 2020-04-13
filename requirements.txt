@@ -13,3 +13,5 @@ requests
 openpyxl
 pandas
 gunicorn
+pytest
+beautifulsoup4
