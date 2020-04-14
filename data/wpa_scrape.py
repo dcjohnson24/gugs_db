@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
-import os
-
 import requests
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
@@ -15,7 +7,7 @@ from pathlib import Path
 import datetime
 import calendar
 import time
-# import gooey
+from tqdm import tqdm
 import argparse
 
 
@@ -25,7 +17,7 @@ def select_month(browser, month: int=None):
     month_table.find_element_by_id(str(month)).click()
 
 
-def select_year(browser, year: int=None):    
+def select_year(browser, year: int=None):
     select = Select(browser.find_element_by_id('ddlSelectedYear'))
     select.select_by_visible_text(f'{year}')
     browser.find_element_by_class_name('filterUpdate').click()
@@ -43,19 +35,6 @@ def set_download_directory(path: str, options: dict):
     return options
 
 
-# @gooey.Gooey(program_name='Download WPA races')
-# def parse_args_gooey():
-#     parser = gooey.GooeyParser(description='Download WPA races')
-#     parser.add_argument('month',
-#                         type=int,
-#                         help='The Month the race took place e.g. 1, 2, ...')
-#     parser.add_argument('--download_path',
-#                         action='store',
-#                         widget='DirChooser',
-#                         help='Directory to store downloaded races')
-#     args = parser.parse_args()
-#     return args
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Download WPA races')
     parser.add_argument('month',
@@ -63,7 +42,7 @@ def parse_args():
                         help='The Month the race took place e.g. 1, 2, ...')
     parser.add_argument('--download_path',
                         type=Path)
-                        
+
     args = parser.parse_args()
     return args
 
@@ -94,9 +73,6 @@ def main(month: int=None,
 
     start = time.time()
     url = "http://www.wpa.org.za/calendar/dynamicevents.aspx"
-    # You must check the box 'Use a proxy server' for proxy settings when connected to CPUT network
-    # driver_path = Path.home() / 'gugs_db' / 'chromedriver'
-    # driver_path = Path.home() / 'Documents' / 'RCS_GUGS_DB' / 'chromedriver.exe'
 
     options = webdriver.ChromeOptions()
 
@@ -109,7 +85,6 @@ def main(month: int=None,
 
     options.headless = True
     browser = HiddenChromeWebDriver(options=options)
-    # browser = HiddenChromeWebDriver(str(driver_path), options=options)
     browser.get(url)
 
     # Filter races by month
@@ -120,8 +95,8 @@ def main(month: int=None,
         select_year(browser, year)
 
     time.sleep(5)
-    # Filter only road events
 
+    # Filter only road events
     select = Select(browser.find_element_by_id('ddlTheme'))
     select.select_by_visible_text('Road')
     browser.find_element_by_class_name('filterUpdate').click()
@@ -130,7 +105,7 @@ def main(month: int=None,
 
     excel_list = []
     div = browser.find_elements_by_tag_name('a')
-    for link in div:
+    for link in tqdm(div):
         for _ in range(max_attempts):
             try:
                 item = link.get_attribute('href')
@@ -148,7 +123,7 @@ def main(month: int=None,
                     output.write(resp.content)
     if not excel_list:
         print(f'No road races found for '
-              f'{month_name} {datetime.datetime.now().year}\n')
+              f'{month_name} {current_year}\n')
 
     print(f'\nRace files saved to {download_path}')
     print(f'Finished in {datetime.timedelta(seconds=time.time()-start)}')

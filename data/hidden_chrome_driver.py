@@ -1,23 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Sep 15 12:36:11 2019
-
-@author: dj3794
-"""
-
-
 import errno
 import os
 import platform
 import subprocess
-import sys
 import time
 import warnings
 
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common import utils
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 from selenium.webdriver.chrome import service, webdriver, remote_connection
+
 
 class HiddenChromeService(service.Service):
 
@@ -74,12 +65,12 @@ class HiddenChromeService(service.Service):
 
 class HiddenChromeWebDriver(webdriver.WebDriver):
     def __init__(self, executable_path="chromedriver", port=0,
-                options=None, service_args=None,
-                desired_capabilities=None, service_log_path=None,
-                chrome_options=None, keep_alive=True):
+                 options=None, service_args=None,
+                 desired_capabilities=None, service_log_path=None,
+                 chrome_options=None, keep_alive=True):
         if chrome_options:
             warnings.warn('use options instead of chrome_options',
-                        DeprecationWarning, stacklevel=2)
+                          DeprecationWarning, stacklevel=2)
             options = chrome_options
 
         if options is None:

@@ -5,7 +5,7 @@ sys.path.append(str(Path.home() / 'gugs_db' / 'data'))
 
 import pandas as pd
 import numpy as np
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 import datetime
@@ -19,7 +19,10 @@ from data.load_db_excel import scrape_all, append_results
 
 def add_timestamp(timestamp):
     if timestamp != 0:
-        return datetime.datetime(1601, 1, 1) + datetime.timedelta(seconds=timestamp/10000000)
+        return (
+            datetime.datetime(1601, 1, 1)
+            + datetime.timedelta(seconds=timestamp/10000000)
+        )
     return np.nan
 
 
@@ -52,10 +55,8 @@ def make_runnercontact_df(df: pd.DataFrame):
     df = clean_column_names(df)
     # Remove excess spaces in string
     df = lower_string_df(df)
-    # Keep only GUGS runners
     df = df.loc[df['club_name'].str.contains('gugulethu')]
 
-    # Drop duplicates
     dups_df = df.loc[df.duplicated(
         subset=['firstname', 'secondname', 'surname'], keep=False)
         | df.identification_code.duplicated(keep=False)]
@@ -63,7 +64,7 @@ def make_runnercontact_df(df: pd.DataFrame):
 
     # Clean up nationality codes
     corrections = [
-        ('germa', 'german'), ('malaw', 'malawian'), 
+        ('germa', 'german'), ('malaw', 'malawian'),
         ('rsa', 'south african'), ('south africa', 'south african'),
         ('zimba', 'zimbabwean'), ('america', 'united states'),
         ('0', 'south african')
@@ -82,14 +83,14 @@ def make_runnercontact_df(df: pd.DataFrame):
     df.created = pd.to_datetime(df.created, format='%Y%m%d%H%M%S')
     df[['medical_aid', 'disclaimer']].astype(bool)
     num_cols = df._get_numeric_data().columns
-    num_cols = [col for col in num_cols if col not in 
-                ['medical_aid', 'disclaimer', 'number', 'year']]  
+    num_cols = [col for col in num_cols if col not in
+                ['medical_aid', 'disclaimer', 'number', 'year']]
     df[num_cols] = df[num_cols].astype(str)
     return df
 
 
 def fix_distances(problem_df: pd.DataFrame):
-    # Mainly needed for 2019 data
+    # Mainly needed for 2019 races
     df = problem_df.copy(deep=True)
 
     def extract_and_replace(some_string: str):
@@ -212,33 +213,6 @@ def load_df_orm(df, table):
         except IntegrityError:
             db.session.rollback()
     db.session.commit()
-
-
-def find_runner_races_contact(name: str,
-                              similarity: float=0.3):
-    # TODO Make query return the appropriate columns
-    stmt = db.session.query(
-        Race.pos, Race.name, Race.race, Race.time,
-        RunnerContact.fullname, RunnerContact.birthdate
-    ).select_from(Race).join(
-        RunnerContact,
-        func.similarity(Race.name, RunnerContact.fullname) > similarity
-    ).subquery()
-    return (
-        db.session.query(stmt)
-        .filter(func.similarity(stmt.c.name, name) > similarity).all()
-    )
-
-
-def find_runner_races(name: str,
-                      similarity: float=0.3):
-    # TODO Do a query on the race table alone
-    # and compare the results with find_runner_races
-    # It may make more sense to just be able to query races
-    # for a person
-    return db.session.query(Race).filter(
-        func.similarity(Race.name, name) > similarity
-    ).all()
 
 
 def combine_race_years():
