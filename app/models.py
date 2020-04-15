@@ -11,35 +11,13 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(1000))
 
 
-class Runner(db.Model):
-    __tablename__ = 'runner'
-    __table_args__ = (
-        db.UniqueConstraint('firstname', 'secondname'),
-    )
-
-    id = db.Column(db.BigInteger, primary_key=True)
-    firstname = db.Column(db.String)
-    secondname = db.Column(db.String)
-    gender = db.Column(db.String)
-    age_cat_type_id = db.Column(db.Integer)
-
-    # One to One relationship with RunnerContact
-    runner_contact = db.relationship('RunnerContact',
-                                     uselist=False,
-                                     back_populates='runner')
-
-    def __repr__(self):
-        return '<Runner %r>' % self.id
-
-
 class RunnerContact(db.Model):
     __tablename__ = 'runner_contact'
-    __table_args__ = (db.UniqueConstraint('firstname', 'secondname', 'surname', 'identification_code'), )
+    __table_args__ = (
+        db.UniqueConstraint('firstname', 'secondname',
+                            'surname', 'identification_code'), )
 
     id = db.Column(db.BigInteger, primary_key=True)
-    runner_id = db.Column(db.BigInteger, db.ForeignKey('runner.id'))
-    # One to One relationship with Runner
-    runner = db.relationship('Runner', back_populates='runner_contact')
     # One to Many relationship with Race
     race = db.relationship('Race')
 
@@ -51,7 +29,6 @@ class RunnerContact(db.Model):
     cellphone = db.Column(db.String)
     fax = db.Column(db.String)
     email = db.Column(db.String)
-    # TODO Find out how to set existing column as a primary key. Check uniqueness in pandas
     identification_code = db.Column(db.String)
     occupation = db.Column(db.String)
     telephone_work = db.Column(db.String)
@@ -95,7 +72,9 @@ class RunnerContact(db.Model):
 
     @fullname.expression
     def fullname(cls):
-        return db.func.concat(cls.firstname, ' ', cls.secondname, ' ', cls.surname)
+        return db.func.concat(
+            cls.firstname, ' ', cls.secondname, ' ', cls.surname
+        )
 
 
 class Race(db.Model):
@@ -124,11 +103,3 @@ class Race(db.Model):
 
     def __repr__(self):
         return '<Race %r>' % self.id
-
-
-class RaceInfo:
-    pass
-
-
-class AgeCatType:
-    pass

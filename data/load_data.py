@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 import argparse
 
 from app import db, create_app
-from app.models import RunnerContact, Runner, User, Race
+from app.models import RunnerContact, User, Race
 from data.load_db_excel import scrape_all, append_results
 
 
@@ -169,20 +169,6 @@ def create_race_table(scrape: bool=False, year: int=None):
     return df
 
 
-def make_runner_df():
-    runner_df = pd.DataFrame(
-        {
-            'firstname': ['Lizo', 'Xolani'],
-            'secondname': ['Bango', 'B'],
-            'gender': ['Male', 'Male'],
-            'age_cat_type_id': [3, 2]
-        }
-    )
-    runner_df = clean_column_names(runner_df)
-    runner_df = lower_string_df(runner_df)
-    return runner_df
-
-
 def add_user(email: str, name: str, password: str):
     new_user = User(
         email=email,
@@ -232,8 +218,6 @@ if __name__ == '__main__':
     app = create_app()
     app.app_context().push()
 
-    runner_df = make_runner_df()
-
     parser = argparse.ArgumentParser(description='Find races for a certain year')
     parser.add_argument('--year', type=int,
                         default=2020, help='Find races for a given year')
@@ -245,7 +229,6 @@ if __name__ == '__main__':
     race_df = fix_distances(race_df)
 
     load_df_orm(race_df, Race)
-    load_df_orm(runner_df, Runner)
     load_df_orm(clean_df, RunnerContact)
     add_user(email=os.getenv('ADMIN_EMAIL'),
              name=os.getenv('ADMIN_NAME'),
