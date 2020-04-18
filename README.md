@@ -120,7 +120,7 @@ The race predictions are made using an ARIMA time series model. Since it is stil
 
 ## Running the tests
 
-Set `FLASK_ENV` to `testing`. To run all tests, use `pytest -v`. The `--disable-warnings` flag can be added to suppress warnings output.
+Set `FLASK_ENV` to `testing`. You will also need to make sure the testing database is up in a docker container. To do this, run `docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d`. After the containers are running, use `pytest -v`. The `--disable-warnings` flag can be added to suppress warnings output.
 
 ### Database tests
 
