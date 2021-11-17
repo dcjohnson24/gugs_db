@@ -110,6 +110,15 @@ If you prefer to have the app start after container creation, simply comment out
 
 The app should be running on localhost at the specified port. If you are using `Docker Toolbox`, this may not be accessible on localhost. You will have to get the IP of your docker machine with `docker-machine ip`, and then type the resulting IP into your browser with the appropriate port, for example `192.168.99.100:5000`.
 
+### Installing pg_trgm Postgres extension
+Note that the function `similarity` requires the extension `pg_trgm` to be installed in Postgres. When the postgres container is running, run
+```
+docker exec -it postgres_sqlalchemy psql -d <db_name> -U <user>
+``` 
+Once logged into the db, run `CREATE EXTENSION pg_trgm;`. Exit the container and the `similarity` function should now work. Test this by searching for a runner or race.
+
+The `CREATE EXTENSION pg_trgm;` command could be added to the `docker-compose.yml` as an entrypoint or cmd for the container. This would be worth exploring.
+
 ## Data 
 The data is taken from the [Western Province Athletics (WPA)](http://www.wpa.org.za/calendar/dynamicevents.aspx) results page. The script `data/wpa_scrape.py` uses `selenium` to download the road race results and save them into the `data/` directory. Those files are then added to the database with `data/load_data.py`, using `pandas` and `sqlalchemy` to add records to the `race` table in the database. The table definitions can be found in `app/models.py`. 
 
