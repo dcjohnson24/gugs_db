@@ -6,7 +6,7 @@ flask_session
 flask-login
 flask-sslify
 Flask-Migrate
-psycopg2
+psycopg2-binary
 ipython
 python-dotenv
 requests
