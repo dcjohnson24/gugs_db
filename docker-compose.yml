@@ -6,11 +6,11 @@ services:
     build: 
       context: .
     # Useful for debugging
-    entrypoint: ["sh", "-c", "sleep 2073600"]
+    # entrypoint: ["sh", "-c", "sleep 2073600"]
     ports:
       - "5000:5000"
     volumes:
-      - ./gugs_db:/code/
+      - .:/code/
     environment: 
       - FLASK_ENV=$FLASK_ENV
     depends_on:
