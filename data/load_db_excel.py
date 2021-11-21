@@ -289,8 +289,11 @@ def clean_time(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def set_download_dir():
-    return Path.home() / 'gugs_db' / 'data' / 'Race_downloads'
+def set_download_dir(docker: bool=True):
+    if docker:
+        return Path('/code') / 'data' / 'Race_downloads'
+    else:
+        return Path.home() / 'gugs_db' / 'data' / 'Race_downloads'
 
 
 def scrape_all(download_path: str=None, year: int=None):

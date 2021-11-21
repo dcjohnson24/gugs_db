@@ -7,7 +7,8 @@ import warnings
 
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
-from selenium.webdriver.chrome import service, webdriver, remote_connection
+from selenium.webdriver.chrome import service, webdriver
+from selenium.webdriver.remote import remote_connection
 
 
 class HiddenChromeService(service.Service):
@@ -93,7 +94,7 @@ class HiddenChromeWebDriver(webdriver.WebDriver):
         try:
             RemoteWebDriver.__init__(
                 self,
-                command_executor=remote_connection.ChromeRemoteConnection(
+                command_executor=remote_connection.RemoteConnection(
                     remote_server_addr=self.service.service_url,
                     keep_alive=keep_alive),
                 desired_capabilities=desired_capabilities)

@@ -1,8 +1,9 @@
 import requests
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as ec
-from data.hidden_chrome_driver import HiddenChromeWebDriver
+from hidden_chrome_driver import HiddenChromeWebDriver
 from pathlib import Path
 import datetime
 import calendar
@@ -12,15 +13,16 @@ import argparse
 
 
 def select_month(browser, month: int=None):
-    browser.find_elements_by_class_name('spnMonthSelector')
-    month_table = browser.find_element_by_id('CalendarFilter')
-    month_table.find_element_by_id(str(month)).click()
+    browser.find_elements(By.CLASS_NAME, 'spnMonthSelector')
+    month_table = browser.find_element(By.ID, 'CalendarFilter')
+    month_table.find_element(By.ID, str(month)).click()
 
 
 def select_year(browser, year: int=None):
-    select = Select(browser.find_element_by_id('ddlSelectedYear'))
+    select = Select(browser.find_element(By.ID, 'ddlSelectedYear'))
     select.select_by_visible_text(f'{year}')
-    browser.find_element_by_class_name('filterUpdate').click()
+    filter_btn = browser.find_element(By.CLASS_NAME, 'EventsFilterSubmit')
+    filter_btn.send_keys('\n')
 
 
 def set_download_directory(path: str, options: dict):
@@ -39,7 +41,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Download WPA races')
     parser.add_argument('month',
                         type=int,
-                        help='The Month the race took place e.g. 1, 2, ...')
+                        help='The month the race took place e.g. 1, 2, ...')
+    parser.add_argument('year',
+                        type=int,
+                        help='The year the race took place')
     parser.add_argument('--download_path',
                         type=Path)
 
@@ -50,6 +55,7 @@ def parse_args():
 def main(month: int=None,
          year: int=None,
          download_path: Path=None,
+         url: str="http://wpa.myactiveweb.co.za/calendar/dynamicevents.aspx",
          max_attempts: int=5):
     current_month = datetime.datetime.now().month
 
@@ -72,7 +78,6 @@ def main(month: int=None,
         return
 
     start = time.time()
-    url = "http://www.wpa.org.za/calendar/dynamicevents.aspx"
 
     options = webdriver.ChromeOptions()
 
@@ -84,7 +89,7 @@ def main(month: int=None,
         download_path = Path.home() / 'Downloads'
 
     options.headless = True
-    browser = HiddenChromeWebDriver(options=options)
+    browser = HiddenChromeWebDriver(options=options, executable_path='/opt/chromedriver')
     browser.get(url)
 
     # Filter races by month
@@ -97,14 +102,15 @@ def main(month: int=None,
     time.sleep(5)
 
     # Filter only road events
-    select = Select(browser.find_element_by_id('ddlTheme'))
+    select = Select(browser.find_element(By.ID, 'ddlTheme'))
     select.select_by_visible_text('Road')
-    browser.find_element_by_class_name('filterUpdate').click()
+    filter_btn = browser.find_element(By.CLASS_NAME, 'EventsFilterSubmit')
+    filter_btn.send_keys('\n')
 
     time.sleep(5)
 
     excel_list = []
-    div = browser.find_elements_by_tag_name('a')
+    div = browser.find_elements(By.TAG_NAME, 'a')
     for link in tqdm(div):
         for _ in range(max_attempts):
             try:
@@ -132,4 +138,4 @@ def main(month: int=None,
 
 if __name__ == '__main__':
     args = parse_args()
-    main(month=args.month, download_path=args.download_path)
+    main(month=args.month, year=args.year, download_path=args.download_path)
