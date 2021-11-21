@@ -1,7 +1,14 @@
 import sys
 import os
 from pathlib import Path
-sys.path.append(str(Path.home() / 'gugs_db' / 'data'))
+
+DOCKER = os.environ.get('IN_A_DOCKER_CONTAINER', False)
+if DOCKER:
+    sys.path.append('/code')
+else:
+    repo_path = Path.home() / 'gugs_db'
+    sys.path.append(str(repo_path))
+    sys.path.append(str(repo_path / 'data'))
 
 import pandas as pd
 import numpy as np
@@ -213,8 +220,12 @@ def combine_race_years():
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('data/export.csv')
-    clean_df = make_runnercontact_df(df)
+    try:
+        df = pd.read_csv('data/export.csv')
+        clean_df = make_runnercontact_df(df)
+        load_df_orm(clean_df, RunnerContact)
+    except FileNotFoundError:
+        pass
     app = create_app()
     app.app_context().push()
 
@@ -229,7 +240,7 @@ if __name__ == '__main__':
     race_df = fix_distances(race_df)
 
     load_df_orm(race_df, Race)
-    load_df_orm(clean_df, RunnerContact)
-    add_user(email=os.getenv('ADMIN_EMAIL'),
-             name=os.getenv('ADMIN_NAME'),
-             password=os.getenv('ADMIN_PASSWORD'))
+    
+    add_user(email=os.getenv('ADMIN_EMAIL', 'gugs@gmail.com'),
+             name=os.getenv('ADMIN_NAME', 'gugs_user'),
+             password=os.getenv('ADMIN_PASSWORD', 'foobar'))
