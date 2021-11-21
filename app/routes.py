@@ -86,7 +86,6 @@ def search_results(search):
         return redirect(url_for('main.search'))
     else:
         table = RunnerResults(results)
-        table.border = True
         return render_template('results.html', table=table)
 
 
@@ -113,8 +112,7 @@ def search_runner_race_results(search):
         return redirect(url_for('main.runner_race_search'))
     else:
         table = RunnerRaceResults(results)
-        table.border = True
-        return render_template('results.html', table=table)
+        return render_template('race_results.html', table=table)
 
 
 @main.route('/top_runners')
@@ -149,8 +147,7 @@ def top_runners(search):
         return redirect(url_for('main.top_runners_search'))
     else:
         table = RunnerRaceResults(results)
-        table.border = True
-        return render_template('results.html', table=table)
+        return render_template('race_results.html', table=table)
 
 
 @main.route('/predict', methods=['GET', 'POST'])

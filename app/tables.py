@@ -52,6 +52,7 @@ class RunnerResults(Table):
 
 
 class RunnerRaceResults(Table):
+    classes =  ['table', 'table-striped', 'table-condensed']
     id = Col('id', show=False)
     runner_contact_id = Col('runner_contact_id', show=False)
     pos = Col('pos')
