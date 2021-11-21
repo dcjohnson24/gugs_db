@@ -1,0 +1,14 @@
+{% extends "results.html" %}
+
+{% block content %}
+<body>
+  {{ table }}
+</body>
+{% endblock %}
+{% block script %}
+<script>
+  $(document).ready(function () {
+    $('#data').DataTable();
+  });
+</script>
+{% endblock %}
